@@ -74,6 +74,7 @@ public class TaskManager {
     public void clearSubtasksMap() {
         subtasksMap.clear();
         for (Epic epic : epicsMap.values()) {
+            epic.getSubtasksId().clear();
             epic.setStatus(Status.NEW);
         }
     }
@@ -140,7 +141,10 @@ public class TaskManager {
             }
             epicsMap.remove(integer);
         } else if (subtasksMap.containsKey(integer)) {
+            final int epicId = subtasksMap.get(integer).getEpicId();
+            epicsMap.get(epicId).getSubtasksId().remove(integer);
             subtasksMap.remove(integer);
+            updateEpicStatus(epicId);
         } else {
             System.out.println("По такому идентификатору задачи нет.");
         }
@@ -175,6 +179,8 @@ public class TaskManager {
                     statuses.add(subtasksMap.get(st).getStatus());
                 }
             }
+        } else {
+            epic.setStatus(Status.NEW);
         }
 
         if (statuses.size() == subtasks.size()) {
