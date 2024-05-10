@@ -116,13 +116,13 @@ public class TaskManager {
     }
 
     // обновляем старую версию объекта на новую, используя объект класса Subtask.
-    public void replaceSubtask(Subtask subTask) {
-        final int id = subTask.getId();
+    public void replaceSubtask(Subtask subtask) {
+        final int id = subtask.getId();
         final Subtask savedSubtask = subtasksMap.get(id);
         if (savedSubtask == null) {
             return;
         }
-        subtasksMap.put(id, subTask);
+        subtasksMap.put(id, subtask);
     }
 
     /* удаление по идентификатору. При удалении объекта класса Epic, сначала обращаемся к списку подзадач этого эпика,
