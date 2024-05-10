@@ -9,9 +9,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class TaskManager {
-    private HashMap<Integer, Task> tasksMap = new HashMap<>();
-    private HashMap<Integer, Epic> epicsMap = new HashMap<>();
-    private HashMap<Integer, Subtask> subtasksMap = new HashMap<>();
+    private final HashMap<Integer, Task> tasksMap = new HashMap<>();
+    private final HashMap<Integer, Epic> epicsMap = new HashMap<>();
+    private final HashMap<Integer, Subtask> subtasksMap = new HashMap<>();
 
     // Добавляем объект класса Task в HashMap<> taskMap
     public void createTask(Task task) {
@@ -70,9 +70,12 @@ public class TaskManager {
         clearSubtasksMap();
     }
 
-    // Удаление всех объектов класса Subtask. Если я правильно понимаю, то удаление подзадач не значит удаление эпика
+    // Удаление всех объектов класса Subtask. Изменяю статус всех объектов класса Epic на NEW
     public void clearSubtasksMap() {
         subtasksMap.clear();
+        for (Epic epic : epicsMap.values()) {
+            epic.setStatus(Status.NEW);
+        }
     }
 
     /* Получение задачи по идентификатору. Если я правильно понимаю, класс Task является суперклассом,
@@ -92,47 +95,34 @@ public class TaskManager {
         return object;
     }
 
-    /* обновляем старую версию объекта на новую, используя объект класса Task.
-    Это единственно решение, до которого я додумался */
+    // обновляем старую версию объекта на новую, используя объект класса Task.
     public void replaceTask(Task task) {
-        int id = -1;
-        for (Integer integer : tasksMap.keySet()) {
-            if (tasksMap.get(integer).equals(task)) {
-                id = integer;
-            }
+        final int id = task.getId();
+        final Task savedTask = tasksMap.get(id);
+        if (savedTask == null) {
+            return;
         }
-        if (id != -1) {
-            tasksMap.remove(id);
-            tasksMap.put(task.getId(), task);
-        }
+        tasksMap.put(id, task);
     }
 
     // обновляем старую версию объекта на новую, используя объект класса Epic.
     public void replaceEpic(Epic epic) {
-        int id = -1;
-        for (Integer integer : epicsMap.keySet()) {
-            if (epicsMap.get(integer).equals(epic)) {
-                id = integer;
-            }
+        final int id = epic.getId();
+        final Epic savedEpic = epicsMap.get(id);
+        if (savedEpic == null) {
+            return;
         }
-        if (id != -1) {
-            epicsMap.remove(id);
-            epicsMap.put(epic.getId(), epic);
-        }
+        epicsMap.put(id, epic);
     }
 
-    // обновляем старую версию объекта на новую, используя объект класса SubTask.
+    // обновляем старую версию объекта на новую, используя объект класса Subtask.
     public void replaceSubtask(Subtask subTask) {
-        int id = -1;
-        for (Integer integer : subtasksMap.keySet()) {
-            if (subtasksMap.get(integer).equals(subTask)) {
-                id = integer;
-            }
+        final int id = subTask.getId();
+        final Subtask savedSubtask = subtasksMap.get(id);
+        if (savedSubtask == null) {
+            return;
         }
-        if (id != -1) {
-            subtasksMap.remove(id);
-            subtasksMap.put(subTask.getId(), subTask);
-        }
+        subtasksMap.put(id, subTask);
     }
 
     /* удаление по идентификатору. При удалении объекта класса Epic, сначала обращаемся к списку подзадач этого эпика,
