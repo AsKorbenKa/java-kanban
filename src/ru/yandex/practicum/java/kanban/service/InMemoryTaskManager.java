@@ -4,16 +4,15 @@ import ru.yandex.practicum.java.kanban.model.Epic;
 import ru.yandex.practicum.java.kanban.model.Subtask;
 import ru.yandex.practicum.java.kanban.model.Task;
 import ru.yandex.practicum.java.kanban.model.Status;
-import ru.yandex.practicum.java.kanban.service.Managers;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 public class InMemoryTaskManager implements TaskManager {
-    private static HashMap<Integer, Task> tasksMap = new HashMap<>();
-    private static HashMap<Integer, Epic> epicsMap = new HashMap<>();
-    private static HashMap<Integer, Subtask> subtasksMap = new HashMap<>();
+    private static final HashMap<Integer, Task> tasksMap = new HashMap<>();
+    private static final HashMap<Integer, Epic> epicsMap = new HashMap<>();
+    private static final HashMap<Integer, Subtask> subtasksMap = new HashMap<>();
 
     // Добавляем объект класса Task в HashMap<> taskMap
     @Override
@@ -92,27 +91,31 @@ public class InMemoryTaskManager implements TaskManager {
         }
     }
 
-    /* Получение задачи по идентификатору. Если я правильно понимаю, класс Task является суперклассом,
-    потому его можно использовать в качестве типа для себя и своих подклассов. */
+    // Получение задачи типа Task по идентификатору
     @Override
     public Task getTaskById(int id) {
-        Task task;
-        if (tasksMap.containsKey(id)) {
-            task = tasksMap.get(id);
-        } else if (epicsMap.containsKey(id)) {
-            task = epicsMap.get(id);
-        } else if (subtasksMap.containsKey(id)) {
-            task = subtasksMap.get(id);
-        } else {
-            task = null;
-            System.out.println("Задачи по такому id нет");
+        if(tasksMap.get(id) != null){
+            Managers.getDefaultHistory().add(tasksMap.get(id));
         }
-        // добавляем в историю просмотров задачу
-        if (!task.equals(null)) {
-            HistoryManager historyManager = Managers.getDefaultHistory();
-            historyManager.add(task);
+        return tasksMap.get(id);
+    }
+
+    // Получение задачи типа Epic по идентификатору
+    @Override
+    public Epic getEpicById(int id) {
+        if(epicsMap.get(id) != null){
+            Managers.getDefaultHistory().add(epicsMap.get(id));
         }
-        return task;
+        return epicsMap.get(id);
+    }
+
+    // Получение задачи типа Subtask по идентификатору
+    @Override
+    public Subtask getSubtaskById(int id) {
+        if(subtasksMap.get(id) != null){
+            Managers.getDefaultHistory().add(subtasksMap.get(id));
+        }
+        return subtasksMap.get(id);
     }
 
     // обновляем старую версию объекта на новую, используя объект класса Task.

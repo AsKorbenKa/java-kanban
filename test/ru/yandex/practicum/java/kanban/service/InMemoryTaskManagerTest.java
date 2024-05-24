@@ -76,7 +76,17 @@ class InMemoryTaskManagerTest {
 
     @Test
     void getTaskById() {
-        assertEquals(subtask, Managers.getDefault().getTaskById(subtask.getId()));
+        assertEquals(task, Managers.getDefault().getTaskById(task.getId()));
+    }
+
+    @Test
+    void getEpicById() {
+        assertEquals(epic, Managers.getDefault().getEpicById(epic.getId()));
+    }
+
+    @Test
+    void getSubtaskById() {
+        assertEquals(subtask, Managers.getDefault().getSubtaskById(subtask.getId()));
     }
 
     @Test

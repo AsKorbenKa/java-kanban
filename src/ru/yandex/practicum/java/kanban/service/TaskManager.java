@@ -40,6 +40,10 @@ public interface TaskManager {
         потому его можно использовать в качестве типа для себя и своих подклассов. */
     Task getTaskById(int id);
 
+    Epic getEpicById(int id);
+
+    Subtask getSubtaskById(int id);
+
     // обновляем старую версию объекта на новую, используя объект класса Task.
     void replaceTask(Task task);
 

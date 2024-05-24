@@ -25,17 +25,17 @@ class InMemoryHistoryManagerTest {
         Managers.getDefault().createEpic(epic);
         Managers.getDefault().createSubtask(subtask);
         Managers.getDefault().getTaskById(task.getId());
-        Managers.getDefault().getTaskById(epic.getId());
-        Managers.getDefault().getTaskById(subtask.getId());
+        Managers.getDefault().getEpicById(epic.getId());
+        Managers.getDefault().getSubtaskById(subtask.getId());
     }
 
     @Test
     void add() {
-        assertEquals(3, Managers.getDefaultHistory().getHistory().size(), "Длина списка равна 0");
+        assertEquals(3, Managers.getDefaultHistory().getHistory().size());
     }
 
     @Test
     void getHistory() {
-        assertEquals(task, Managers.getDefaultHistory().getHistory().getFirst(), "Сравниваемые объекты неравны");
+        assertEquals(task, Managers.getDefaultHistory().getHistory().getFirst());
     }
 }
