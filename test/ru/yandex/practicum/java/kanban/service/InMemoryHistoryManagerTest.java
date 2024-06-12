@@ -35,6 +35,15 @@ class InMemoryHistoryManagerTest {
     }
 
     @Test
+    void remove() {
+        Managers.getDefault().removeTaskById(subtask.getId());
+        assertFalse(Managers.getDefaultHistory().getHistory().contains(subtask));
+
+        Managers.getDefault().createSubtask(subtask);
+        Managers.getDefault().getSubtaskById(subtask.getId());
+    }
+
+    @Test
     void getHistory() {
         assertEquals(task, Managers.getDefaultHistory().getHistory().getFirst());
     }
