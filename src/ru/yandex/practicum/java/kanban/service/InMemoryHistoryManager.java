@@ -28,7 +28,7 @@ public class InMemoryHistoryManager implements HistoryManager {
 
     private static class OwnLinkedList {
 
-        class Node <T> {
+        class Node<T> {
 
             private T data;
             private Node<T> next;
@@ -57,7 +57,8 @@ public class InMemoryHistoryManager implements HistoryManager {
 
         public List<Task> getTasks() {
             List<Task> histories = new ArrayList<>();
-            for(Node<Task> history : innerMap.values()) {
+
+            for (Node<Task> history : innerMap.values()) {
                 histories.add(history.data);
             }
 
