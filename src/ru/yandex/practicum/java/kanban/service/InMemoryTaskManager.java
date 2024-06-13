@@ -179,17 +179,14 @@ public class InMemoryTaskManager implements TaskManager {
             tasksMap.remove(integer);
         } else if (epicsMap.containsKey(integer)) {
             List<Integer> subTasks = epicsMap.get(integer).getSubtasksId();
+
             if (!subTasks.isEmpty()) {
                 for (Integer subTask : subTasks) {
                     // удаление всех сабтасков из истории просмотров при удалении их эпика
-                    if (Managers.getDefaultHistory().getHistory().contains(subtasksMap.get(subTask))) {
-                        Managers.getDefaultHistory().remove(subTask);
-                    }
-
+                    Managers.getDefaultHistory().remove(subTask);
                     subtasksMap.remove(subTask);
                 }
             }
-
             epicsMap.remove(integer);
         } else if (subtasksMap.containsKey(integer)) {
             int epicId = subtasksMap.get(integer).getEpicId();

@@ -52,7 +52,9 @@ public class InMemoryHistoryManager implements HistoryManager {
         }
 
         public void removeNode(int id) {
-            innerMap.remove(id);
+            if (innerMap.containsKey(id)) {
+                innerMap.remove(id);
+            }
         }
 
         public List<Task> getTasks() {

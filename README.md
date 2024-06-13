@@ -5,11 +5,5 @@ Repository for homework project.
 
 ---
 
-1. В HistoryManager и его реализацию добавлен метод 
-```void remove(int id) ```
-2. В InMemoryHistoryManager добавлени класс OwnLinkedList, который реализует создание списка просмотров, добавление
-новых элементов, удаление элементов по id, получение списка.
-3. В класс InMemoryTaskManager в методы clearTasksMap, clearEpicsMap, clearSubtasksMap и removeTaskById добавлено
-удаление задач из истории просмотров, если они в нем были
-4. В InMemoryHistoryManagerTest добавлен тест для метода ```remove```
-5. В Main добавлено дополнительное задание(пользовательский сценарий)
+1. Теперь в removeNode перед удаление проверяем есть ли такое id по ключу
+2. В методе removeTaskById удалена проверка if во избежание повторения кода и для улучшения читаемости
