@@ -73,9 +73,7 @@ public class InMemoryTaskManager implements TaskManager {
     public void clearTasksMap() {
         // удаление объектов класса Task из истории просмотров
         for (Task task : tasksMap.values()) {
-            if (Managers.getDefaultHistory().getHistory().contains(task)) {
-                Managers.getDefaultHistory().remove(task.getId());
-            }
+            Managers.getDefaultHistory().remove(task.getId());
         }
 
         tasksMap.clear();
@@ -86,9 +84,7 @@ public class InMemoryTaskManager implements TaskManager {
     public void clearEpicsMap() {
         // удаление объектов класса Epic из истории просмотров
         for (Epic task : epicsMap.values()) {
-            if (Managers.getDefaultHistory().getHistory().contains(task)) {
-                Managers.getDefaultHistory().remove(task.getId());
-            }
+            Managers.getDefaultHistory().remove(task.getId());
         }
 
         epicsMap.clear();
@@ -100,9 +96,7 @@ public class InMemoryTaskManager implements TaskManager {
     public void clearSubtasksMap() {
         // удаление объектов класса Subtask из истории просмотров
         for (Subtask task : subtasksMap.values()) {
-            if (Managers.getDefaultHistory().getHistory().contains(task)) {
-                Managers.getDefaultHistory().remove(task.getId());
-            }
+            Managers.getDefaultHistory().remove(task.getId());
         }
 
         subtasksMap.clear();
