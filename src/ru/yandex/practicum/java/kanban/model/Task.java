@@ -21,15 +21,25 @@ public class Task {
         return id;
     }
 
-    public String getName() { return name; }
+    public String getName() {
+        return name;
+    }
 
-    public void setName(String name) { this.name = name; }
+    public void setName(String name) {
+        this.name = name;
+    }
 
-    public String getDiscription() { return discription; }
+    public String getDiscription() {
+        return discription;
+    }
 
-    public void setDiscription(String discription) { this.discription = discription; }
+    public void setDiscription(String discription) {
+        this.discription = discription;
+    }
 
-    public Status getStatus() { return status; }
+    public Status getStatus() {
+        return status;
+    }
 
     public void setStatus(Status status) {
         this.status = status;

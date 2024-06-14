@@ -71,12 +71,26 @@ public class InMemoryTaskManager implements TaskManager {
     // Удаление всех объектов класса Task
     @Override
     public void clearTasksMap() {
+        // удаление объектов класса Task из истории просмотров
+        for (Task task : tasksMap.values()) {
+            if (Managers.getDefaultHistory().getHistory().contains(task)) {
+                Managers.getDefaultHistory().remove(task.getId());
+            }
+        }
+
         tasksMap.clear();
     }
 
     // Удаление всех объектов класса Epic. По логике, если удаляются все эпики, то удаляются и их подзадачи
     @Override
     public void clearEpicsMap() {
+        // удаление объектов класса Epic из истории просмотров
+        for (Epic task : epicsMap.values()) {
+            if (Managers.getDefaultHistory().getHistory().contains(task)) {
+                Managers.getDefaultHistory().remove(task.getId());
+            }
+        }
+
         epicsMap.clear();
         clearSubtasksMap();
     }
@@ -84,6 +98,13 @@ public class InMemoryTaskManager implements TaskManager {
     // Удаление всех объектов класса Subtask. Изменяю статус всех объектов класса Epic на NEW
     @Override
     public void clearSubtasksMap() {
+        // удаление объектов класса Subtask из истории просмотров
+        for (Subtask task : subtasksMap.values()) {
+            if (Managers.getDefaultHistory().getHistory().contains(task)) {
+                Managers.getDefaultHistory().remove(task.getId());
+            }
+        }
+
         subtasksMap.clear();
         for (Epic epic : epicsMap.values()) {
             epic.getSubtasksId().clear();
@@ -94,7 +115,7 @@ public class InMemoryTaskManager implements TaskManager {
     // Получение задачи типа Task по идентификатору
     @Override
     public Task getTaskById(int id) {
-        if(tasksMap.get(id) != null){
+        if (tasksMap.get(id) != null) {
             Managers.getDefaultHistory().add(tasksMap.get(id));
         }
         return tasksMap.get(id);
@@ -103,7 +124,7 @@ public class InMemoryTaskManager implements TaskManager {
     // Получение задачи типа Epic по идентификатору
     @Override
     public Epic getEpicById(int id) {
-        if(epicsMap.get(id) != null){
+        if (epicsMap.get(id) != null) {
             Managers.getDefaultHistory().add(epicsMap.get(id));
         }
         return epicsMap.get(id);
@@ -112,7 +133,7 @@ public class InMemoryTaskManager implements TaskManager {
     // Получение задачи типа Subtask по идентификатору
     @Override
     public Subtask getSubtaskById(int id) {
-        if(subtasksMap.get(id) != null){
+        if (subtasksMap.get(id) != null) {
             Managers.getDefaultHistory().add(subtasksMap.get(id));
         }
         return subtasksMap.get(id);
@@ -151,29 +172,34 @@ public class InMemoryTaskManager implements TaskManager {
         subtasksMap.replace(id, subtask);
     }
 
-    /* удаление по идентификатору. При удалении объекта класса Epic, сначала обращаемся к списку подзадач этого эпика,
-    используя id каждого объекта класса SubTask, удаляем все эти объекты из общей HasMap класса SubTask,
-    после чего удаляем сам Epic */
+    // удаление по идентификатору.
     @Override
     public void removeTaskById(Integer integer) {
         if (tasksMap.containsKey(integer)) {
             tasksMap.remove(integer);
         } else if (epicsMap.containsKey(integer)) {
             List<Integer> subTasks = epicsMap.get(integer).getSubtasksId();
+
             if (!subTasks.isEmpty()) {
                 for (Integer subTask : subTasks) {
+                    // удаление всех сабтасков из истории просмотров при удалении их эпика
+                    Managers.getDefaultHistory().remove(subTask);
                     subtasksMap.remove(subTask);
                 }
             }
             epicsMap.remove(integer);
         } else if (subtasksMap.containsKey(integer)) {
             int epicId = subtasksMap.get(integer).getEpicId();
+
             epicsMap.get(epicId).getSubtasksId().remove(integer);
             subtasksMap.remove(integer);
+
             updateEpicStatus(epicId);
         } else {
             System.out.println("По такому идентификатору задачи нет.");
         }
+        // удаление задачи из истории промотров
+        Managers.getDefaultHistory().remove(integer);
     }
 
     // Возвращаю список подзадач определенного объекта класса Epic

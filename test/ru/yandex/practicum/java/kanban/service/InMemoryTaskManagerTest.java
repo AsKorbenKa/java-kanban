@@ -1,5 +1,6 @@
 package ru.yandex.practicum.java.kanban.service;
 
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -39,6 +40,12 @@ class InMemoryTaskManagerTest {
         if (Managers.getDefault().getAllSubtasksList().isEmpty()) {
             Managers.getDefault().createSubtask(subtask);
         }
+    }
+
+    @AfterAll
+    public static void afterAll() {
+        Managers.getDefault().removeTaskById(task.getId());
+        Managers.getDefault().removeTaskById(epic.getId());
     }
 
     @Test
