@@ -44,8 +44,9 @@ class InMemoryTaskManagerTest {
 
     @AfterAll
     public static void afterAll() {
-        Managers.getDefault().removeTaskById(task.getId());
-        Managers.getDefault().removeTaskById(epic.getId());
+        Managers.getDefault().clearTasksMap();
+        Managers.getDefault().clearEpicsMap();
+        Managers.getDefault().clearSubtasksMap();
     }
 
     @Test

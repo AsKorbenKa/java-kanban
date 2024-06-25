@@ -1,7 +1,7 @@
 package ru.yandex.practicum.java.kanban.service;
 
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.java.kanban.model.Epic;
 import ru.yandex.practicum.java.kanban.model.Subtask;
@@ -27,6 +27,13 @@ class InMemoryHistoryManagerTest {
         Managers.getDefault().getTaskById(task.getId());
         Managers.getDefault().getEpicById(epic.getId());
         Managers.getDefault().getSubtaskById(subtask.getId());
+    }
+
+    @AfterAll
+    public static void afterAll() {
+        Managers.getDefault().clearTasksMap();
+        Managers.getDefault().clearEpicsMap();
+        Managers.getDefault().clearSubtasksMap();
     }
 
     @Test
