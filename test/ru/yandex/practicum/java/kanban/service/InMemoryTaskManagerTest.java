@@ -99,7 +99,7 @@ class InMemoryTaskManagerTest {
     @Test
     void replaceTask() {
         task.setName("Задача 69");
-        task.setDiscription("Описание 69");
+        task.setDescription("Описание 69");
         Managers.getDefault().replaceTask(task);
         assertEquals(task, Managers.getDefault().getAllTasksList().getFirst());
     }
@@ -107,7 +107,7 @@ class InMemoryTaskManagerTest {
     @Test
     void replaceEpic() {
         epic.setName("Задача 228");
-        epic.setDiscription("Описание 228");
+        epic.setDescription("Описание 228");
         Managers.getDefault().replaceEpic(epic);
         assertEquals(epic, Managers.getDefault().getAllEpicsList().getFirst());
     }
@@ -115,7 +115,7 @@ class InMemoryTaskManagerTest {
     @Test
     void replaceSubtask() {
         subtask.setName("Задача 1111");
-        subtask.setDiscription("Описание 1111");
+        subtask.setDescription("Описание 1111");
         Managers.getDefault().replaceSubtask(subtask);
         assertEquals(subtask, Managers.getDefault().getAllSubtasksList().getFirst());
     }
