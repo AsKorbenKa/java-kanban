@@ -84,6 +84,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         }
     }
 
+    // переопределены те методы, которые каким-либо образом влияют на количество или состояние задач
     @Override
     public void createTask(Task task) {
         super.createTask(task);
