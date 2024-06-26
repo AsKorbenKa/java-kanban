@@ -8,6 +8,7 @@ import ru.yandex.practicum.java.kanban.model.Task;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.List;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
@@ -20,8 +21,8 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     // достаем данные из файла, добавляем объекты классов в их HashMap
     public static FileBackedTaskManager loadFromFile(File file) {
         FileBackedTaskManager fileTaskManager = new FileBackedTaskManager(file);
-        try (BufferedReader br = new BufferedReader(new FileReader(file, StandardCharsets.UTF_8))) {
-            List<String> lines = br.lines().toList();
+        try {
+            List<String> lines = Files.readAllLines(file.toPath(), StandardCharsets.UTF_8);
             for (int i = 1; i < lines.size(); i++) {
                 if (lines.get(i).isEmpty()) {
                     break;
@@ -37,7 +38,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                 }
             }
         } catch (IOException e) {
-            throw new ManagerSaveException();
+            throw new ManagerSaveException("Неудалось получить задачи из файла", e);
         }
         return fileTaskManager;
     }
@@ -49,14 +50,12 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         String name = taskPieces[2];
         Status status = Status.valueOf(taskPieces[3]);
         String description = taskPieces[4];
-        switch (taskPieces[1]) {
-            case "TASK":
-                return new Task(id, name, status, description);
-            case "SUBTASK":
-                return new Subtask(id, name, status, description, Integer.parseInt(taskPieces[5]));
-            default:
-                return new Epic(id, name, status, description);
-        }
+        return switch (taskPieces[1]) {
+            case "TASK" -> new Task(id, name, status, description);
+            case "SUBTASK" -> new Subtask(id, name, status, description, Integer.parseInt(taskPieces[5]));
+            case "EPIC" -> new Epic(id, name, status, description);
+            default -> throw new IllegalArgumentException("Unknown task type: " + taskPieces[1]);
+        };
     }
 
     // сохранение всех задач в файл
@@ -80,7 +79,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             }
 
         } catch (IOException e) {
-            throw new ManagerSaveException();
+            throw new ManagerSaveException("Неудалось сохранить изменения в файл", e);
         }
     }
 
