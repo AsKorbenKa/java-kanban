@@ -38,7 +38,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                 }
             }
         } catch (IOException e) {
-            throw new ManagerSaveException("Неудалось получить задачи из файла", e);
+            throw new ManagerSaveException("Не удалось получить задачи из файла", e);
         }
         return fileTaskManager;
     }
@@ -79,7 +79,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             }
 
         } catch (IOException e) {
-            throw new ManagerSaveException("Неудалось сохранить изменения в файл", e);
+            throw new ManagerSaveException("Не удалось сохранить изменения в файл", e);
         }
     }
 
