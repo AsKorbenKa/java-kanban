@@ -41,12 +41,12 @@ public class Main {
         }
         /*
         Результат:
-        id,type,name,status,description,epic
-        1,EPIC,Задача 1,NEW,Описание задачи 1
-        2,EPIC,Задача 2,NEW,Описание задачи 2
-        3,SUBTASK,Задача 3,NEW,Описание задачи 3,1
-        4,SUBTASK,Задача 4,NEW,Описание задачи 4,1
-        5,SUBTASK,Задача 5,NEW,Описание задачи 5,1
+        id,type,name,status,description,startTime,duration,epic
+        1,EPIC,Задача 1,NEW,Описание задачи 1,null,PT3H20M
+        2,EPIC,Задача 2,NEW,Описание задачи 2,null,null
+        3,SUBTASK,Задача 3,NEW,Описание задачи 3,2024-07-13T00:22:44.341145600,PT2H,1
+        4,SUBTASK,Задача 4,NEW,Описание задачи 4,2024-07-13T00:22:44.341145600,PT1H20M,1
+        5,SUBTASK,Задача 5,NEW,Описание задачи 5,null,null,1
          */
 
     }

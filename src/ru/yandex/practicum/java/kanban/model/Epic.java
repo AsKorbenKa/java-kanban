@@ -1,6 +1,6 @@
 package ru.yandex.practicum.java.kanban.model;
 
-import ru.yandex.practicum.java.kanban.service.Managers;
+import ru.yandex.practicum.java.kanban.service.InMemoryTaskManager;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -10,9 +10,8 @@ import java.util.List;
 import java.util.Optional;
 
 public class Epic extends Task {
+    InMemoryTaskManager taskManager = new InMemoryTaskManager();
     private final List<Integer> subtasksId = new ArrayList<>();
-
-    private LocalDateTime endTime;
 
     public Epic(String name, String description) {
         super(name, description);
@@ -28,11 +27,18 @@ public class Epic extends Task {
 
     public LocalDateTime getEndTime() {
         Optional<Subtask> lastTask = subtasksId.stream()
-                .filter(id -> Managers.getDefault().getAllSubtasksList().get(id).getStartTime() != null)
-                .map(id -> Managers.getDefault().getAllSubtasksList().get(id))
+                .map(id -> taskManager.getSubtaskById(id))
+                .filter(subtask -> subtask.getStartTime() != null)
                 .max(Comparator.comparing(Subtask::getStartTime));
 
-        return endTime = lastTask.get().getStartTime().plus(getDuration());
+        if (lastTask.isPresent()) {
+            Subtask subtask = lastTask.get();
+            if (subtask.getDuration() != null) {
+                return subtask.getStartTime().plus(subtask.getDuration());
+            }
+        }
+        return null;
+
     }
 
     public List<Integer> getSubtasksId() {
