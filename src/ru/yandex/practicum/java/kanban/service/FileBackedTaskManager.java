@@ -9,6 +9,8 @@ import ru.yandex.practicum.java.kanban.model.Task;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
@@ -50,10 +52,22 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         String name = taskPieces[2];
         Status status = Status.valueOf(taskPieces[3]);
         String description = taskPieces[4];
+        LocalDateTime startTime;
+        if (taskPieces[5].equals("null")) {
+            startTime = null;
+        } else {
+            startTime = LocalDateTime.parse(taskPieces[5]);
+        }
+        Duration duration;
+        if (taskPieces[6].equals("null")) {
+            duration = null;
+        } else {
+            duration = Duration.parse(taskPieces[6]);
+        }
         return switch (taskPieces[1]) {
-            case "TASK" -> new Task(id, name, status, description);
-            case "SUBTASK" -> new Subtask(id, name, status, description, Integer.parseInt(taskPieces[5]));
-            case "EPIC" -> new Epic(id, name, status, description);
+            case "TASK" -> new Task(id, name, status, description, startTime, duration);
+            case "SUBTASK" -> new Subtask(id, name, status, description, startTime, duration, Integer.parseInt(taskPieces[7]));
+            case "EPIC" -> new Epic(id, name, status, description, startTime, duration);
             default -> throw new IllegalArgumentException("Unknown task type: " + taskPieces[1]);
         };
     }
@@ -61,21 +75,24 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     // сохранение всех задач в файл
     private void save() throws ManagerSaveException {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(allTasksHistory, StandardCharsets.UTF_8))) {
-            bw.write("id,type,name,status,description,epic\n");
+            bw.write("id,type,name,status,description,startTime,duration,epic\n");
 
             for (Task task : getAllTasksList()) {
                 bw.write(task.getId() + ",TASK," + task.getName() + "," + task.getStatus() + ","
-                        + task.getDescription() + "\n");
+                        + task.getDescription() + "," + task.getStartTime() + "," + task.getDuration()
+                        + "\n");
             }
 
             for (Epic epic : getAllEpicsList()) {
                 bw.write(epic.getId() + ",EPIC," + epic.getName() + "," + epic.getStatus() + ","
-                        + epic.getDescription() + "\n");
+                        + epic.getDescription() + "," + epic.getStartTime() + "," + epic.getDuration()
+                        + "\n");
             }
 
             for (Subtask subtask : getAllSubtasksList()) {
                 bw.write(subtask.getId() + ",SUBTASK," + subtask.getName() + "," + subtask.getStatus() + ","
-                        + subtask.getDescription() + "," + subtask.getEpicId() + "\n");
+                        + subtask.getDescription() + "," + subtask.getStartTime() + ","
+                        + subtask.getDuration() + "," + subtask.getEpicId() + "\n");
             }
 
         } catch (IOException e) {

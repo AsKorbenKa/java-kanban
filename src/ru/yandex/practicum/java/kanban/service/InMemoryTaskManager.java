@@ -5,20 +5,28 @@ import ru.yandex.practicum.java.kanban.model.Subtask;
 import ru.yandex.practicum.java.kanban.model.Task;
 import ru.yandex.practicum.java.kanban.model.Status;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class InMemoryTaskManager implements TaskManager {
     private static final HashMap<Integer, Task> tasksMap = new HashMap<>();
     private static final HashMap<Integer, Epic> epicsMap = new HashMap<>();
     private static final HashMap<Integer, Subtask> subtasksMap = new HashMap<>();
+    private static final TreeSet<Task> prioritizedTasks = new TreeSet<>(Comparator.comparing(Task::getStartTime));
 
     // Добавляем объект класса Task в HashMap<> taskMap
     @Override
     public void createTask(Task task) {
         if (!tasksMap.containsKey(task.getId())) {
             tasksMap.put(task.getId(), task);
+            //если время выполнения задачи не пересекается с временем любой другой задачи, то добавляем в TreeSet
+            //иначе выводим предупреждение
+            if (task.getStartTime() != null && (checkIntersectionOfTasks(task) && prioritizedTasks.isEmpty())) {
+                prioritizedTasks.add(task);
+            } else {
+                System.out.println("Время задачи (" + task.getName() + ") пересекается с временем другой задачи. " +
+                        "Необходимо изменить время начала выполнения и/или продолжительность выполнения");
+            }
         } else {
             System.out.println("Такая задача в списке Task уже существует.");
         }
@@ -44,6 +52,27 @@ public class InMemoryTaskManager implements TaskManager {
             Epic epic = epicsMap.get(epicId);
             if (!epic.getSubtasksId().contains(subtask.getId())) {
                 epic.getSubtasksId().add(subtask.getId());
+            }
+            // присваиваем эпику в startTime новое значение если дата или/и время у подзадачи меньше
+            if (subtask.getStartTime() != null) {
+                if (epic.getStartTime() != null) {
+                    if (subtask.getStartTime().isBefore(epic.getStartTime()) && epic.getStartTime() != null) {
+                        epic.setStartTime(subtask.getStartTime());
+                    }
+                }
+                //если время выполнения подзадачи не пересекается с временем любой другой задачи, то добавляем в TreeSet
+                //иначе выводим предупреждение
+                if (checkIntersectionOfTasks(subtask) || prioritizedTasks.isEmpty()) {
+                    prioritizedTasks.add(subtask); //добавляю подзадачу в TreeSet
+                } else {
+                    System.out.println("Время подзадачи (" + subtask.getName() + ") пересекается с временем другой задачи. " +
+                            "Необходимо изменить время начала выполнения и/или продолжительность выполнения");
+                }
+            }
+
+            // перенаправляем значение duration подзадачи в метод setDuration() эпика
+            if (subtask.getDuration() != null) {
+                epic.setDuration(subtask.getDuration());
             }
         } else {
             System.out.println("Такая подзадача в списке уже существует.");
@@ -72,9 +101,8 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void clearTasksMap() {
         // удаление объектов класса Task из истории просмотров
-        for (Task task : tasksMap.values()) {
-            Managers.getDefaultHistory().remove(task.getId());
-        }
+        tasksMap.values()
+                .forEach(task -> Managers.getDefaultHistory().remove(task.getId()));
 
         tasksMap.clear();
     }
@@ -83,9 +111,8 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void clearEpicsMap() {
         // удаление объектов класса Epic из истории просмотров
-        for (Epic task : epicsMap.values()) {
-            Managers.getDefaultHistory().remove(task.getId());
-        }
+        epicsMap.values()
+                .forEach(epic -> Managers.getDefaultHistory().remove(epic.getId()));
 
         epicsMap.clear();
         clearSubtasksMap();
@@ -95,15 +122,17 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void clearSubtasksMap() {
         // удаление объектов класса Subtask из истории просмотров
-        for (Subtask task : subtasksMap.values()) {
-            Managers.getDefaultHistory().remove(task.getId());
-        }
+        subtasksMap.values()
+                .forEach(subtask -> Managers.getDefaultHistory().remove(subtask.getId()));
 
         subtasksMap.clear();
-        for (Epic epic : epicsMap.values()) {
-            epic.getSubtasksId().clear();
-            epic.setStatus(Status.NEW);
-        }
+
+        epicsMap.values()
+                .forEach(epic -> {
+                    epic.getSubtasksId().clear();
+                    epic.setStatus(Status.NEW);
+                });
+
     }
 
     // Получение задачи типа Task по идентификатору
@@ -172,14 +201,13 @@ public class InMemoryTaskManager implements TaskManager {
         if (tasksMap.containsKey(integer)) {
             tasksMap.remove(integer);
         } else if (epicsMap.containsKey(integer)) {
-            List<Integer> subTasks = epicsMap.get(integer).getSubtasksId();
+            List<Integer> subtasks = epicsMap.get(integer).getSubtasksId();
 
-            if (!subTasks.isEmpty()) {
-                for (Integer subTask : subTasks) {
-                    // удаление всех сабтасков из истории просмотров при удалении их эпика
-                    Managers.getDefaultHistory().remove(subTask);
-                    subtasksMap.remove(subTask);
-                }
+            if (!subtasks.isEmpty()) {
+                subtasks.forEach(subtask -> {
+                    Managers.getDefaultHistory().remove(subtask);
+                    subtasksMap.remove(subtask);
+                });
             }
             epicsMap.remove(integer);
         } else if (subtasksMap.containsKey(integer)) {
@@ -222,19 +250,63 @@ public class InMemoryTaskManager implements TaskManager {
         List<Integer> subtasks = epic.getSubtasksId();
         List<Status> statuses = new ArrayList<>();
         if (!subtasks.isEmpty()) {
-            for (Integer st : subtasks) {
-                if (subtasksMap.get(st).getStatus().equals(Status.IN_PROGRESS)) {
+            subtasks.forEach(subtaskId -> {
+                if (subtasksMap.get(subtaskId).getStatus().equals(Status.IN_PROGRESS)) {
                     epic.setStatus(Status.IN_PROGRESS);
-                } else {
-                    statuses.add(subtasksMap.get(st).getStatus());
+                } else if (subtasksMap.get(subtaskId).getStatus().equals(Status.DONE)) {
+                    statuses.add(Status.DONE);
                 }
-            }
+            });
         } else {
             epic.setStatus(Status.NEW);
         }
 
         if (statuses.size() == subtasks.size()) {
             epic.setStatus(Status.DONE);
+        } else if (!statuses.isEmpty() && statuses.size() < subtasks.size()) {
+            epic.setStatus(Status.IN_PROGRESS);
         }
+    }
+
+    // собираем все задачи и подзадачи в один список и сортируем
+    @Override
+    public List<Task> getPrioritizedTasks() {
+        List<Task> allTasksForMapping = getAllTasksList();
+        allTasksForMapping.addAll(getAllSubtasksList());
+
+        return allTasksForMapping.stream()
+                .filter(task -> task.getStartTime() != null)
+                .sorted(Comparator.comparing(Task::getStartTime))
+                .collect(Collectors.toList());
+    }
+
+    // удаляем задачу, если она есть в TreeSet, затем добавляем задачу
+    @Override
+    public void addTaskToTreeSet(Task task) {
+        prioritizedTasks.remove(task);
+        prioritizedTasks.add(task);
+    }
+
+    @Override
+    public boolean checkIntersectionOfTasks(Task task) {
+        return prioritizedTasks.stream()
+                .allMatch(setTask -> {
+                    // если в обоих задачах duration != null
+                    if (setTask.getDuration() != null && task.getDuration() != null) {
+                        return setTask.getStartTime().plus(setTask.getDuration()).isBefore(task.getStartTime()) ||
+                                task.getStartTime().plus(task.getDuration()).isBefore(setTask.getStartTime());
+                    } else if (setTask.getDuration() != null && task.getDuration() == null) {
+                        // если в параметре duration == null
+                        return setTask.getStartTime().plus(setTask.getDuration()).isBefore(task.getStartTime()) ||
+                                task.getStartTime().isBefore(setTask.getStartTime());
+                    } else if (setTask.getDuration() == null && task.getDuration() != null) {
+                        // если в задаче из TreeSet duration == null, в задаче из параметра != null
+                        return setTask.getStartTime().isBefore(task.getStartTime()) ||
+                                task.getStartTime().plus(task.getDuration()).isBefore(setTask.getStartTime());
+                    }
+                    // если в обоих задачах duration == null
+                    return setTask.getStartTime().isBefore(task.getStartTime()) ||
+                            task.getStartTime().isBefore(setTask.getStartTime());
+                });
     }
 }

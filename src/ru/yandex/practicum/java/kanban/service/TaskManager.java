@@ -69,4 +69,10 @@ public interface TaskManager {
 
     // Изменяем статус для объектов класса SubTask, проверяем и меняем статус Epic
     void updateEpicStatus(int epicId);
+
+    List<Task> getPrioritizedTasks();
+
+    void addTaskToTreeSet(Task task);
+
+    boolean checkIntersectionOfTasks(Task task);
 }

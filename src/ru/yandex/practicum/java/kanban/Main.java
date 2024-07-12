@@ -7,6 +7,8 @@ import ru.yandex.practicum.java.kanban.service.InMemoryTaskManager;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class Main {
@@ -21,9 +23,12 @@ public class Main {
         tm.createEpic(epic1);
         tm.createEpic(epic2);
 
-        Subtask subtask1 = new Subtask("Задача 3", "Описание задачи 3", epic1.getId());
-        Subtask subtask2 = new Subtask("Задача 4", "Описание задачи 4", epic1.getId());
-        Subtask subtask3 = new Subtask("Задача 5", "Описание задачи 5", epic1.getId());
+        Subtask subtask1 = new Subtask("Задача 3", "Описание задачи 3", LocalDateTime.now(),
+                Duration.ofMinutes(120), epic1.getId());
+        Subtask subtask2 = new Subtask("Задача 4", "Описание задачи 4", LocalDateTime.now(),
+                Duration.ofMinutes(80), epic1.getId());
+        Subtask subtask3 = new Subtask("Задача 5", "Описание задачи 5", null,
+                null, epic1.getId());
         tm.createSubtask(subtask1);
         tm.createSubtask(subtask2);
         tm.createSubtask(subtask3);

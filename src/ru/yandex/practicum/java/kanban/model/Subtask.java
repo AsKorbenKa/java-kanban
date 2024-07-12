@@ -1,5 +1,9 @@
 package ru.yandex.practicum.java.kanban.model;
 
+import ru.yandex.practicum.java.kanban.service.Managers;
+
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 public class Subtask extends Task {
@@ -15,8 +19,36 @@ public class Subtask extends Task {
         this.epicId = epicId;
     }
 
+    public Subtask(String name, String description, LocalDateTime startTime, Duration duration, int epicId) {
+        super(name, description, startTime, duration);
+        this.epicId = epicId;
+    }
+
+    public Subtask(int id, String name, Status status, String description, LocalDateTime startTime,
+                   Duration duration, int epicId) {
+        super(id, name, status, description, startTime, duration);
+        this.epicId = epicId;
+    }
+
     public int getEpicId() {
         return epicId;
+    }
+
+    // присваиваем значение startTime подзадачи, присваиваем это значение эпику, если оно меньше.
+    @Override
+    public void setStartTime(LocalDateTime startTime) {
+        super.setStartTime(startTime);
+        Managers.getDefault().addTaskToTreeSet(this);
+        if (startTime.isBefore(Managers.getDefault().getEpicById(getEpicId()).getStartTime())) {
+            Managers.getDefault().getEpicById(getEpicId()).setStartTime(startTime);
+        }
+    }
+
+    // присваиваем значение duration и передаем значение в эпик для последующего прибавление к объекту duration эпика
+    @Override
+    public void setDuration(Duration duration) {
+        super.setDuration(duration);
+        Managers.getDefault().getEpicById(getEpicId()).setDuration(duration);
     }
 
     @Override
@@ -27,7 +59,9 @@ public class Subtask extends Task {
                 ", id=" + getId() +
                 ", epicId=" + epicId +
                 ", status=" + getStatus() +
-                '}';
+                ", startTime=" + getStartTime() +
+                ", duration=" + getDuration() +
+                "}";
     }
 
     @Override
