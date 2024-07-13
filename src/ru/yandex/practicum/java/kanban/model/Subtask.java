@@ -34,22 +34,6 @@ public class Subtask extends Task {
         return epicId;
     }
 
-    // присваиваем значение startTime подзадачи, присваиваем это значение эпику, если оно меньше.
-    @Override
-    public void setStartTime(LocalDateTime startTime) {
-        super.setStartTime(startTime);
-        Managers.getDefault().addTaskToTreeSet(this);
-        if (startTime.isBefore(Managers.getDefault().getEpicById(getEpicId()).getStartTime())) {
-            Managers.getDefault().getEpicById(getEpicId()).setStartTime(startTime);
-        }
-    }
-
-    // присваиваем значение duration и передаем значение в эпик для последующего прибавление к объекту duration эпика
-    @Override
-    public void setDuration(Duration duration) {
-        super.setDuration(duration);
-        Managers.getDefault().getEpicById(getEpicId()).setDuration(duration);
-    }
 
     @Override
     public String toString() {

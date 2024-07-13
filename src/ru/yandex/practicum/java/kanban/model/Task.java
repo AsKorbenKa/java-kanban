@@ -102,7 +102,6 @@ public class Task {
     // устанавливаем время для задачи
     public void setStartTime(LocalDateTime startTime) {
         this.startTime = startTime;
-        Managers.getDefault().addTaskToTreeSet(this); // передаем задачу для последующего добавления в TreeSet
     }
 
     public Duration getDuration() {
