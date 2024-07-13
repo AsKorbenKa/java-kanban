@@ -1,13 +1,9 @@
 package ru.yandex.practicum.java.kanban.model;
 
-import ru.yandex.practicum.java.kanban.service.InMemoryTaskManager;
-
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 
 public class Epic extends Task {
     private final List<Integer> subtasksId = new ArrayList<>();
