@@ -53,27 +53,7 @@ public class InMemoryTaskManager implements TaskManager {
             if (!epic.getSubtasksId().contains(subtask.getId())) {
                 epic.getSubtasksId().add(subtask.getId());
             }
-            // присваиваем эпику в startTime новое значение если дата или/и время у подзадачи меньше
-            if (subtask.getStartTime() != null) {
-                if (epic.getStartTime() != null) {
-                    if (subtask.getStartTime().isBefore(epic.getStartTime()) && epic.getStartTime() != null) {
-                        epic.setStartTime(subtask.getStartTime());
-                    }
-                }
-                //если время выполнения подзадачи не пересекается с временем любой другой задачи, то добавляем в TreeSet
-                //иначе выводим предупреждение
-                if (checkIntersectionOfTasks(subtask) || prioritizedTasks.isEmpty()) {
-                    prioritizedTasks.add(subtask); //добавляю подзадачу в TreeSet
-                } else {
-                    System.out.println("Время подзадачи (" + subtask.getName() + ") пересекается с временем другой задачи. " +
-                            "Необходимо изменить время начала выполнения и/или продолжительность выполнения");
-                }
-            }
-
-            // перенаправляем значение duration подзадачи в метод setDuration() эпика
-            if (subtask.getDuration() != null) {
-                epic.setDuration(subtask.getDuration());
-            }
+            setEpicDateTime(subtask, epic);
         } else {
             System.out.println("Такая подзадача в списке уже существует.");
         }
@@ -308,5 +288,38 @@ public class InMemoryTaskManager implements TaskManager {
                     return setTask.getStartTime().isBefore(task.getStartTime()) ||
                             task.getStartTime().isBefore(setTask.getStartTime());
                 });
+    }
+
+    // обновляем поля startTime, duration, endTime в эпике
+    private void setEpicDateTime(Subtask subtask, Epic epic) {
+        // присваиваем эпику в startTime новое значение если дата или/и время у подзадачи меньше
+        if (subtask.getStartTime() != null) {
+            if (epic.getStartTime() == null || subtask.getStartTime().isBefore(epic.getStartTime())) {
+                epic.setStartTime(subtask.getStartTime());
+            }
+            // присваиваем endTime эпику значение
+            if (subtask.getDuration() != null) {
+                if (epic.getEndTime() == null || subtask.getStartTime().isAfter(epic.getEndTime())) {
+                    epic.setEndTime(subtask.getStartTime().plus(subtask.getDuration()));
+                }
+            } else {
+                if (epic.getEndTime() == null || subtask.getStartTime().isAfter(epic.getEndTime())) {
+                    epic.setEndTime(subtask.getStartTime());
+                }
+            }
+            //если время выполнения подзадачи не пересекается с временем любой другой задачи, то добавляем в TreeSet
+            //иначе выводим предупреждение
+            if (checkIntersectionOfTasks(subtask) || prioritizedTasks.isEmpty()) {
+                prioritizedTasks.add(subtask); //добавляю подзадачу в TreeSet
+            } else {
+                System.out.println("Время подзадачи (" + subtask.getName() + ") пересекается с временем другой задачи. " +
+                        "Необходимо изменить время начала выполнения и/или продолжительность выполнения");
+            }
+        }
+
+        // перенаправляем значение duration подзадачи в метод setDuration() эпика
+        if (subtask.getDuration() != null) {
+            epic.setDuration(subtask.getDuration());
+        }
     }
 }

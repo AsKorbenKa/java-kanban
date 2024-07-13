@@ -10,8 +10,8 @@ import java.util.List;
 import java.util.Optional;
 
 public class Epic extends Task {
-    InMemoryTaskManager taskManager = new InMemoryTaskManager();
     private final List<Integer> subtasksId = new ArrayList<>();
+    private LocalDateTime endTime;
 
     public Epic(String name, String description) {
         super(name, description);
@@ -26,19 +26,11 @@ public class Epic extends Task {
     }
 
     public LocalDateTime getEndTime() {
-        Optional<Subtask> lastTask = subtasksId.stream()
-                .map(id -> taskManager.getSubtaskById(id))
-                .filter(subtask -> subtask.getStartTime() != null)
-                .max(Comparator.comparing(Subtask::getStartTime));
+        return endTime;
+    }
 
-        if (lastTask.isPresent()) {
-            Subtask subtask = lastTask.get();
-            if (subtask.getDuration() != null) {
-                return subtask.getStartTime().plus(subtask.getDuration());
-            }
-        }
-        return null;
-
+    public void setEndTime(LocalDateTime endTime) {
+        this.endTime = endTime;
     }
 
     public List<Integer> getSubtasksId() {
