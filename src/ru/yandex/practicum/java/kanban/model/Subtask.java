@@ -1,5 +1,7 @@
 package ru.yandex.practicum.java.kanban.model;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 public class Subtask extends Task {
@@ -15,9 +17,21 @@ public class Subtask extends Task {
         this.epicId = epicId;
     }
 
+    public Subtask(String name, String description, LocalDateTime startTime, Duration duration, int epicId) {
+        super(name, description, startTime, duration);
+        this.epicId = epicId;
+    }
+
+    public Subtask(int id, String name, Status status, String description, LocalDateTime startTime,
+                   Duration duration, int epicId) {
+        super(id, name, status, description, startTime, duration);
+        this.epicId = epicId;
+    }
+
     public int getEpicId() {
         return epicId;
     }
+
 
     @Override
     public String toString() {
@@ -27,7 +41,9 @@ public class Subtask extends Task {
                 ", id=" + getId() +
                 ", epicId=" + epicId +
                 ", status=" + getStatus() +
-                '}';
+                ", startTime=" + getStartTime() +
+                ", duration=" + getDuration() +
+                "}";
     }
 
     @Override
