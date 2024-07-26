@@ -2,7 +2,6 @@ package ru.yandex.practicum.java.kanban.exceptions;
 
 public class ManagerSaveException extends RuntimeException {
     public ManagerSaveException() {
-
     }
 
     public ManagerSaveException(final String message) {
@@ -11,5 +10,9 @@ public class ManagerSaveException extends RuntimeException {
 
     public ManagerSaveException(final String message, final Throwable cause) {
         super(message, cause);
+    }
+
+    public ManagerSaveException(final Throwable cause) {
+        super(cause);
     }
 }
