@@ -1,5 +1,7 @@
 package ru.yandex.practicum.java.kanban.service;
 
+import ru.yandex.practicum.java.kanban.exceptions.TaskIntersectionError;
+import ru.yandex.practicum.java.kanban.exceptions.TaskNotFoundException;
 import ru.yandex.practicum.java.kanban.model.Epic;
 import ru.yandex.practicum.java.kanban.model.Subtask;
 import ru.yandex.practicum.java.kanban.model.Task;
@@ -21,14 +23,22 @@ public class InMemoryTaskManager implements TaskManager {
             tasksMap.put(task.getId(), task);
             //если время выполнения задачи не пересекается с временем любой другой задачи, то добавляем в TreeSet
             //иначе выводим предупреждение
-            if (task.getStartTime() != null && (checkIntersectionOfTasks(task) && prioritizedTasks.isEmpty())) {
-                prioritizedTasks.add(task);
-            } else {
-                System.out.println("Время задачи (" + task.getName() + ") пересекается с временем другой задачи. " +
-                        "Необходимо изменить время начала выполнения и/или продолжительность выполнения");
+            if (task.getStartTime() != null) {
+                if (checkIntersectionOfTasks(task)) {
+                    addTaskToTreeSet(task);
+                } else {
+                    // если время выполнения задачи пересекается с временем другой задачи, то выбрасываем ошибку
+                    System.out.println("Время задачи (" + task.getName() + ") пересекается с временем другой задачи. " +
+                            "Необходимо изменить время начала выполнения и/или продолжительность выполнения");
+                    throw new TaskIntersectionError();
+                }
             }
+
+
         } else {
-            System.out.println("Такая задача в списке Task уже существует.");
+            // если задача уже есть в списке задач, то перенаправляю ее для обновления данных в самой задаче
+            System.out.println("Такая задача в списке Task уже существует. Обновляем данные задачи.");
+            replaceTask(task);
         }
     }
 
@@ -38,7 +48,8 @@ public class InMemoryTaskManager implements TaskManager {
         if (!epicsMap.containsKey(epic.getId())) {
             epicsMap.put(epic.getId(), epic);
         } else {
-            System.out.println("Такая задача в списке Epic уже существует.");
+            System.out.println("Такая задача в списке Epic уже существует. Обновляем данные задачи.");
+            replaceEpic(epic);
         }
     }
 
@@ -55,7 +66,8 @@ public class InMemoryTaskManager implements TaskManager {
             }
             setEpicDateTime(subtask, epic);
         } else {
-            System.out.println("Такая подзадача в списке уже существует.");
+            System.out.println("Такая подзадача в списке уже существует. Обновляем данные задачи.");
+            replaceSubtask(subtask);
         }
     }
 
@@ -120,6 +132,9 @@ public class InMemoryTaskManager implements TaskManager {
     public Task getTaskById(int id) {
         if (tasksMap.get(id) != null) {
             Managers.getDefaultHistory().add(tasksMap.get(id));
+        } else {
+            System.out.println("Задачи со следующим id нет: " + id);
+            throw new TaskNotFoundException(id);
         }
         return tasksMap.get(id);
     }
@@ -129,6 +144,9 @@ public class InMemoryTaskManager implements TaskManager {
     public Epic getEpicById(int id) {
         if (epicsMap.get(id) != null) {
             Managers.getDefaultHistory().add(epicsMap.get(id));
+        } else {
+            System.out.println("Эпика со следующим id нет: " + id);
+            throw new TaskNotFoundException(id);
         }
         return epicsMap.get(id);
     }
@@ -138,6 +156,9 @@ public class InMemoryTaskManager implements TaskManager {
     public Subtask getSubtaskById(int id) {
         if (subtasksMap.get(id) != null) {
             Managers.getDefaultHistory().add(subtasksMap.get(id));
+        } else {
+            System.out.println("Подзадачи со следующим id нет: " + id);
+            throw new TaskNotFoundException(id);
         }
         return subtasksMap.get(id);
     }
@@ -199,6 +220,7 @@ public class InMemoryTaskManager implements TaskManager {
             updateEpicStatus(epicId);
         } else {
             System.out.println("По такому идентификатору задачи нет.");
+            throw new TaskNotFoundException(integer);
         }
         // удаление задачи из истории промотров
         Managers.getDefaultHistory().remove(integer);
@@ -321,5 +343,9 @@ public class InMemoryTaskManager implements TaskManager {
         if (subtask.getDuration() != null) {
             epic.setDuration(subtask.getDuration());
         }
+    }
+
+    public void clearTreeSet() {
+        prioritizedTasks.clear();
     }
 }
