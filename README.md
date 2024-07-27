@@ -5,7 +5,7 @@ Repository for homework project.
 
 ---
 
-1. Удалены все Managers.getDefault() из классов Task и Epic. Теперь значения полям присваиваются только через сеттеры
-и конструкторы
-2. Удалено создание нового экземпляра InMemoryTaskManager внутри класса Epic 
-3. В Epic добавлено поле endTime, добавлен метод setEpicDateTime, в котором присваиваются значения всем новым полям эпика
+1. Добавлены классы, реализовывающие API, эндпоинты, адаптеры
+2. Добавлен новый класс HttpTaskServerTest с тестами всех методов, реализованных в классах, описанных выше
+3. Добавлено 2 эксепшена: TaskIntersectionError и TaskNotFoundException. 
+Теперь они выбрасываются в классе InMemoryTaskManager

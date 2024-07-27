@@ -75,4 +75,6 @@ public interface TaskManager {
     void addTaskToTreeSet(Task task);
 
     boolean checkIntersectionOfTasks(Task task);
+
+    void clearTreeSet();
 }

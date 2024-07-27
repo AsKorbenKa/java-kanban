@@ -12,8 +12,11 @@ import java.nio.file.Files;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
+    public static final Logger logger = Logger.getLogger(FileBackedTaskManager.class.getName());
     private final File allTasksHistory;
 
     public FileBackedTaskManager(File allTasksHistory) {
@@ -40,7 +43,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                 }
             }
         } catch (IOException e) {
-            throw new ManagerSaveException("Не удалось получить задачи из файла", e);
+            logger.log(Level.SEVERE, "Не удалось получить задачи из файла", new ManagerSaveException(e));
         }
         return fileTaskManager;
     }
@@ -66,7 +69,8 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         }
         return switch (taskPieces[1]) {
             case "TASK" -> new Task(id, name, status, description, startTime, duration);
-            case "SUBTASK" -> new Subtask(id, name, status, description, startTime, duration, Integer.parseInt(taskPieces[7]));
+            case "SUBTASK" ->
+                    new Subtask(id, name, status, description, startTime, duration, Integer.parseInt(taskPieces[7]));
             case "EPIC" -> new Epic(id, name, status, description, startTime, duration);
             default -> throw new IllegalArgumentException("Unknown task type: " + taskPieces[1]);
         };
@@ -96,7 +100,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             }
 
         } catch (IOException e) {
-            throw new ManagerSaveException("Не удалось сохранить изменения в файл", e);
+            logger.log(Level.SEVERE, "Не удалось сохранить изменения в файл", new ManagerSaveException(e));
         }
     }
 
